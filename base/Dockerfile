@@ -5,6 +5,8 @@ ARG RAILS_ENV_ARG
 ARG SECRET_KEY_BASE_ARG
 ENV RAILS_ENV ${RAILS_ENV_ARG}
 ENV SECRET_KEY_BASE ${SECRET_KEY_BASE_ARG}
+# bin/rails's case.not recommend.
+ENV RAILS_SERVE_STATIC_FILES true
 
 WORKDIR /opt
 RUN apk add --no-cache tzdata && \
