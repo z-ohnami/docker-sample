@@ -8,19 +8,23 @@ ENV SECRET_KEY_BASE ${SECRET_KEY_BASE_ARG}
 # bin/rails's case.not recommend.
 ENV RAILS_SERVE_STATIC_FILES true
 
-WORKDIR /opt
+WORKDIR /app
 RUN apk add --no-cache tzdata && \
     apk --no-cache --virtual gem-builddeps add alpine-sdk sqlite-dev ruby-dev musl-dev libffi-dev linux-headers make g++  && \
     cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     apk update && apk add yarn git sqlite-libs && \
     git clone https://github.com/z-ohnami/omochi.git
 
-WORKDIR /opt/omochi
+WORKDIR /app/omochi
+
 RUN bundle install -j4 --path=.bundle && yarn install && ./bin/webpack && \
     apk del gem-builddeps
+
+ADD . /app
 
 EXPOSE 3000
 
 #ENTRYPOINT ["./bin/rails", "s", "-p", "3000"]
-ENTRYPOINT ["./bin/bundle", "exec", "unicorn", "-p", "3000"]
+#ENTRYPOINT ["./bin/bundle", "exec", "unicorn", "-p", "3000"]
+#CMD ["/app/omochi/bin/bundle", "exec", "unicorn", "-p", "3000", "-c", "/app/omochi/config/unicorn.rb"]
 

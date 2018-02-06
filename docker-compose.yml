@@ -1,0 +1,54 @@
+version: '2'
+services:
+  datastore:
+    image: busybox
+    volumes:
+      - /share
+#      - ./docker/mysql/volumes:/var/lib/mysql
+#      - /etc/localtime:/etc/localtime:ro
+  server:
+    image: nginx-sample:latest
+#    build:
+#      context: .
+#      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - '80:80'
+    volumes_from:
+      - datastore
+    depends_on:
+      - datastore
+  web:
+    image: rails-sample:latest
+#    build:
+#      context: .
+#      dockerfile: ./docker/rails/Dockerfile
+    command: /app/omochi/bin/bundle exec unicorn -p 3000 -c /app/omochi/config/unicorn.rb
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+#      - /etc/localtime:/etc/localtime:ro
+    volumes_from:
+      - datastore
+#    depends_on:
+#      - db
+#    links:
+#      - db
+#      - db:database
+#      - db:mysql
+#    extends:
+#      file: ./docker/mysql/password.yml
+#      service: password
+#  db:
+#    build:
+#      context: .
+#      dockerfile: ./docker/mysql/Dockerfile
+#    ports:
+#      - '3306:3306'
+#    volumes_from:
+#      - datastore
+#    depends_on:
+#      - datastore
+#    extends:
+#      file: ./docker/mysql/password.yml
+#      service: password
