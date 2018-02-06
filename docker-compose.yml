@@ -7,10 +7,10 @@ services:
 #      - ./docker/mysql/volumes:/var/lib/mysql
 #      - /etc/localtime:/etc/localtime:ro
   server:
-    image: nginx-sample:latest
-#    build:
-#      context: .
-#      dockerfile: ./docker/nginx/Dockerfile
+    # image: nginx-sample:latest
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
     ports:
       - '80:80'
     volumes_from:
@@ -18,11 +18,14 @@ services:
     depends_on:
       - datastore
   web:
-    image: rails-sample:latest
-#    build:
-#      context: .
-#      dockerfile: ./docker/rails/Dockerfile
-    command: /app/omochi/bin/bundle exec unicorn -p 3000 -c /app/omochi/config/unicorn.rb
+    # image: rails-sample:latest
+    build:
+      context: .
+      args:
+        - RAILS_ENV_ARG=production
+        - SECRET_KEY_BASE_ARG=${SECRET_BASE}
+      dockerfile: ./docker/rails/Dockerfile
+    command: bundle exec unicorn -p 3000 -c /app/config/unicorn.rb
     ports:
       - '3000:3000'
     volumes:
