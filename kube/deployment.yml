@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: nginx-deployment
 spec:
-  replicas: 2 # Pod を常に 2 つ起動させる
+  replicas: 3
   template: # 起動する Pod の設定テンプレート
     metadata:
       # kubectl コマンドや Service などから Pod を参照する際にこのラベルを使って絞り込むことができる
@@ -11,8 +11,35 @@ spec:
         app: nginx
     spec:
       containers:
-      - name: nginx # 今回は 1 Pod に nginx のコンテナが一つだけ入っているものを立ち上げる
-        image: example/nginx:1.0
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
+        - name: nginx # 今回は 1 Pod に nginx のコンテナが一つだけ入っているものを立ち上げる
+          image: example/nginx:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /share
+              name: share-volume
+        - name: rails
+          image: example/rails:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /share
+              name: share-volume
+          command: ["unicorn", "-p", "3000", "-c", "/app/omochi/config/unicorn.rb"]
+      volumes:
+        - name: share-volume
+          hostPath:
+            path: /log
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment
+spec:
+  type: NodePort
+  selector:
+    name: nginx-deployment
+  ports:
+    - port: 80
