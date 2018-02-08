@@ -1,0 +1,18 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 2 # Pod を常に 2 つ起動させる
+  template: # 起動する Pod の設定テンプレート
+    metadata:
+      # kubectl コマンドや Service などから Pod を参照する際にこのラベルを使って絞り込むことができる
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx # 今回は 1 Pod に nginx のコンテナが一つだけ入っているものを立ち上げる
+        image: example/nginx:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
