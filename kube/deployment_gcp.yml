@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  template: # 起動する Pod の設定テンプレート
+    metadata:
+      # kubectl コマンドや Service などから Pod を参照する際にこのラベルを使って絞り込むことができる
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: gcr.io/market-sample/nginx-example
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /share
+              name: share-volume
+        - name: rails
+          image: gcr.io/market-sample/rails-example
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /share
+              name: share-volume
+          command: ["unicorn", "-p", "3000", "-c", "/app/omochi/config/unicorn.rb"]
+      volumes:
+        - name: share-volume
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+    - port: 80

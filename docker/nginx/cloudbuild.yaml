@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/market-sample/nginx-example', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ["push", 'gcr.io/market-sample/nginx-example']
