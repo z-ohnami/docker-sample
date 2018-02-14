@@ -19,3 +19,8 @@ cd docker/rails
 gcloud container builds submit --config=cloudbuild.yaml .
 kubectl apply -f kube/deployment2.yml
 ```
+
+```
+kubectl delete  nginx-deployment
+gcloud container clusters delete cluster-1
+```
