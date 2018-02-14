@@ -24,3 +24,18 @@ kubectl apply -f kube/deployment2.yml
 kubectl delete  nginx-deployment
 gcloud container clusters delete cluster-1
 ```
+
+```
+docker run --rm -d -p 9200:9200 -i -t elasticsearch:5.6.7-alpine
+docker exec -it {container id} /bin/bash
+```
+
+```
+curl -XGET http://localhost:9200
+curl -XGET http://localhost:9200/properties?pretty
+curl -XGET http://localhost:9200/properties/areas/_count?pretty
+curl -XPUT http://localhost:9200/test_index/log/1 -d '{"host":"localhost", "message":"test message is fine."}'
+curl -XGET http://localhost:9200/test_index/log/1
+curl -XGET http://localhost:9200/test_index/_search -d '{}'
+curl -XGET http://localhost:9200/test_index/_search -d '{"query":{"query_string":{"query": "message:test"}}}'
+```
