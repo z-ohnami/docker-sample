@@ -1,5 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/market-sample/rails-example', '--build-arg', 'RAILS_ENV_ARG=production', '--build-arg', 'SECRET_KEY_BASE_ARG=$SECRETE_BASE', '--build-arg', 'BUNDLE_GEMFILE_ARG=/app/omochi/Gemfile', '.']
+  args: ['build', '-t', 'gcr.io/market-sample/rails-example:v6', '--build-arg', 'RAILS_ENV_ARG=production', '--build-arg', 'SECRET_KEY_BASE_ARG=xxx', '--build-arg', 'BUNDLE_GEMFILE_ARG=/app/Gemfile', '.']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/market-sample/rails-example']
+  args: ['push', 'gcr.io/market-sample/rails-example:v6']

@@ -24,9 +24,9 @@ services:
       args:
         - RAILS_ENV_ARG=production
         - SECRET_KEY_BASE_ARG=${SECRET_BASE}
-        - BUNDLE_GEMFILE_ARG=/app/omochi/Gemfile
+        - BUNDLE_GEMFILE_ARG=/app/Gemfile
       dockerfile: ./docker/rails/Dockerfile
-    command: unicorn -p 3000 -c /app/omochi/config/unicorn.rb
+    command: unicorn -p 3000 -c /app/config/unicorn.rb
     ports:
       - '3000:3000'
     # volumes:

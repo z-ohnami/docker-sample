@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: gcr.io/market-sample/nginx-example
+          image: gcr.io/market-sample/nginx-example:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -20,17 +20,64 @@ spec:
             - mountPath: /share
               name: share-volume
         - name: rails
-          image: gcr.io/market-sample/rails-example
+          image: gcr.io/market-sample/rails-example:v6
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-db-credentials
+                  key: username
+            - name: PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-pg-settings
+                  key: pghost
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-pg-user
+                  key: pguser
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-pg-password
+                  key: pgpassword
+            - name: PG_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-pg-database
+                  key: pgdatabase
           volumeMounts:
             - mountPath: /share
               name: share-volume
-          command: ["unicorn", "-p", "3000", "-c", "/app/omochi/config/unicorn.rb"]
+          command: ["unicorn", "-p", "3000", "-c", "/app/config/unicorn.rb"]
+        - image: gcr.io/cloudsql-docker/gce-proxy:1.09
+          name: cloudsql-proxy
+          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                    "-instances=market-sample:asia-northeast1:market=tcp:3306",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
       volumes:
         - name: share-volume
           emptyDir: {}
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir:
 ---
 apiVersion: v1
 kind: Service

@@ -12,9 +12,13 @@ chmod +x cloud_sql_proxy
 sudo mkdir /cloudsql
 sudo chmod 0777 /cloudsql
 cloud_sql_proxy -instances="market-sample:asia-northeast1:market" -dir=/cloudsql
+```
 
 ```
 gcloud container clusters get-credentials cluster-1
+kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json={jsonfile}
+kubectl create secret generic cloudsql-db-credentials --from-literal=username=db_proxy
+kubectl create secret generic cloudsql-user --from-literal=username=hoge
 cd docker/rails
 gcloud container builds submit --config=cloudbuild.yaml .
 kubectl apply -f kube/deployment2.yml

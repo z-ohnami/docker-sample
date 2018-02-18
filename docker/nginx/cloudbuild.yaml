@@ -1,5 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/market-sample/nginx-example', '.']
+  args: ['build', '-t', 'gcr.io/market-sample/nginx-example:v1', '.']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ["push", 'gcr.io/market-sample/nginx-example']
+  args: ["push", 'gcr.io/market-sample/nginx-example:v1']

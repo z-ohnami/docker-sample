@@ -4,21 +4,21 @@ MAINTAINER makoto.ohnami<z.ohnami@gmail.com>
 ARG RAILS_ENV_ARG
 ARG SECRET_KEY_BASE_ARG
 ARG BUNDLE_GEMFILE_ARG
+ARG REPOSITORY_URL_ARG
 
 ENV RAILS_ENV ${RAILS_ENV_ARG}
 ENV SECRET_KEY_BASE ${SECRET_KEY_BASE_ARG}
 ENV BUNDLE_GEMFILE ${BUNDLE_GEMFILE_ARG}
+ENV REPOSITORY_URL ${REPOSITORY_URL_ARG}
 # bin/rails's case.not recommend.
 ENV RAILS_SERVE_STATIC_FILES true
 
 WORKDIR /app
-RUN apk add --no-cache tzdata && \
-    apk --no-cache --virtual gem-builddeps add alpine-sdk sqlite-dev ruby-dev musl-dev libffi-dev linux-headers make g++  && \
+RUN apk add --no-cache tzdata mariadb-client-libs libpq && \
+    apk --no-cache --virtual gem-builddeps add alpine-sdk sqlite-dev ruby-dev musl-dev libffi-dev linux-headers make g++ mariadb-dev postgresql-dev && \
     cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     apk update && apk add yarn git sqlite-libs && \
-    git clone https://github.com/z-ohnami/omochi.git
-
-WORKDIR /app/omochi
+    git clone $REPOSITORY_URL .
 
 RUN bundle install -j4 --path=.bundle && yarn install && ./bin/webpack && \
     apk del gem-builddeps
