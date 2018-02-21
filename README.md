@@ -42,4 +42,9 @@ curl -XPUT http://localhost:9200/test_index/log/1 -d '{"host":"localhost", "mess
 curl -XGET http://localhost:9200/test_index/log/1
 curl -XGET http://localhost:9200/test_index/_search -d '{}'
 curl -XGET http://localhost:9200/test_index/_search -d '{"query":{"query_string":{"query": "message:test"}}}'
+curl -XPOST http://localhost:32771/_bulk -H 'Content-Type: application/json' --data-binary "@properties_index3-1.json"
+```
+
+```
+cat properties_cache2.json | redis-cli --pipe -h localhost -p 32768
 ```
