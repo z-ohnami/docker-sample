@@ -1,29 +1,15 @@
-apiVersion: apps/v1beta1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: nginx-deployment
+  name: rails-batch
 spec:
-  replicas: 3
-  template: # 起動する Pod の設定テンプレート
-    metadata:
-      # kubectl コマンドや Service などから Pod を参照する際にこのラベルを使って絞り込むことができる
-      labels:
-        app: nginx
+  template:
     spec:
       containers:
-        - name: nginx
-          image: gcr.io/app-cluster-196205/nginx-example:v1
+        - name: rails-batch
+          image: gcr.io/app-cluster-196205/rails-example:v6
           imagePullPolicy: Always
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - mountPath: /share
-              name: share-volume
-        - name: rails
-          image: gcr.io/app-cluster-196205/rails-example:v7
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
+          command: ["bin/rails", "search_index:fetch"]
           env:
             - name: DB_USER
               valueFrom:
@@ -70,22 +56,11 @@ spec:
                 secretKeyRef:
                   name: cloudsql-elasticsearch-port
                   key: elasticsearchport
-            - name: BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: cloudsql-basic-auth-user-name
-                  key: basicauthusername
-            - name: BASIC_AUTH_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: cloudsql-basic-auth-password
-                  key: basicauthpassword
           volumeMounts:
-            - mountPath: /share
-              name: share-volume
-          command: ["unicorn", "-p", "3000", "-c", "/app/config/unicorn.rb"]
-        - image: gcr.io/cloudsql-docker/gce-proxy:1.09
-          name: cloudsql-proxy
+            - name: cloudsql
+              mountPath: /cloudsql
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.09
           command: ["/cloud_sql_proxy", "--dir=/cloudsql",
                     "-instances=app-cluster-196205:asia-northeast1:sample-db=tcp:3306",
                     "-credential_file=/secrets/cloudsql/credentials.json"]
@@ -98,8 +73,6 @@ spec:
             - name: cloudsql
               mountPath: /cloudsql
       volumes:
-        - name: share-volume
-          emptyDir: {}
         - name: cloudsql-instance-credentials
           secret:
             secretName: cloudsql-instance-credentials
@@ -108,14 +81,5 @@ spec:
             path: /etc/ssl/certs
         - name: cloudsql
           emptyDir:
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-deployment
-spec:
-  type: LoadBalancer
-  selector:
-    app: nginx
-  ports:
-    - port: 80
+      restartPolicy: Never
+  backoffLimit: 1

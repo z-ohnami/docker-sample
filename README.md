@@ -15,6 +15,7 @@ cloud_sql_proxy -instances="market-sample:asia-northeast1:market" -dir=/cloudsql
 ```
 
 ```
+gcloud config set project xxxxx
 gcloud container clusters get-credentials cluster-1
 kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json={jsonfile}
 kubectl create secret generic cloudsql-db-credentials --from-literal=username=db_proxy

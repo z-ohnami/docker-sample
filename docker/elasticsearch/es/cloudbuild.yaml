@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/app-cluster-196205/elasticsearch-example:v5', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/app-cluster-196205/elasticsearch-example:v5']
